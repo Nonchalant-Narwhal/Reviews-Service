@@ -16,7 +16,13 @@ app.get(`/reviews/:product_id/list`,(req,res) => {
   db.retreive(id,count,page).then(
     (data) => {
       //console.log(data)
-      res.status(200).send(data);
+      const response ={
+        product: id,
+        page: page,
+        count: count,
+        results: data
+      }
+      res.status(200).send(response);
     }
   ).catch(
     (err) => {
@@ -28,6 +34,11 @@ app.get(`/reviews/:product_id/list`,(req,res) => {
   )
 })
 
+// add a review:
+app.post('/reviews/:product_id',(req,res) => {
+  db.save(req.body);
+  res.sendStatus(201)
+})
 
 
 app.listen(port, () => console.log('Server running...'));
