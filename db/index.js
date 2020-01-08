@@ -1,19 +1,35 @@
 const mongoose = require('mongoose')
 mongoose.connect('mongodb://localhost/reviews_lite',{ useNewUrlParser: true })
         .then(() => console.log('connected'))
-        
-// mongoose.connection.on("open", err => {
-//   if (err) console.log(chalk.red("Error connecting to our mongo database"));
-//   console.log("Connected to mongo database successfully");
-// });
+//schema        
 const reviewsSchema = mongoose.Schema({
   _id: String,
   reviews: Array
 })
+//model
 const Review = mongoose.model('Review', reviewsSchema)
 
-const retreive = (id) => {
-  return Review.find({"_id":id}).exec();
+//query db by id
+const retreive = (id,count,page) => {
+  return Review
+          .findOne({"_id":id},{"_id":0})
+          .then((data) =>{
+            //pagination
+            let newData = data.reviews.slice(page*count,(page+1)*count)
+            newData.forEach((d) =>{
+              d["review_id"] = d["id"];
+              delete d.id;
+              delete d.characteristics;
+            });
+            const response ={
+              product: id,
+              page: page,
+              count: count,
+              results: newData
+            }
+            return response
+          })
+          // .exec();
 }
 
 module.exports.retreive = retreive;
