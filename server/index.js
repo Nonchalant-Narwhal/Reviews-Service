@@ -15,12 +15,38 @@ app.get(`/reviews/:product_id/list`,(req,res) => {
   const page = req.query.page||0;
   db.retreive(id,count,page).then(
     (data) => {
-      //format data
+      let r = data.map((d) => {
+        //format data
+        let photos = []
+        console.log(d['photos'])
+        if(d['photos'].length !== 0){
+          for(let i = 0; i < d['photos'].length; i ++){
+            photos.push({'id':i + 1, 'url':d['photos'][i]})
+          }
+        }
+        let response = ''
+        if(d['response'] !== "null") {
+          response = d['response'];
+        }        
+        d = {
+          review_id: d['_id'],
+          rating: d['rating'],
+          summary: d['summary'],
+          recommend: d['recommend'],
+          response: response,
+          body: d['body'],
+          date: d['date'],
+          reviewer_name: d['name'],
+          helpfulness: d['helpfulness'],
+          photos: photos
+        }
+        return d
+      })
       const response ={
         product: id,
         page: page,
         count: count,
-        results: data
+        results: r
       }
       res.status(200).send(response);
     }
@@ -38,20 +64,6 @@ app.get(`/reviews/:product_id/list`,(req,res) => {
 app.post('/reviews/:product_id',(req,res) => {
   let data = req.body;
   const id = req.params.product_id;
-  data["reviewer_name"] = data["name"];
-  delete data["name"];
-  data["reviewer_email"] = data["email"];
-  delete data["email"];
-  data["reported"] = "0";
-  data["helpfulness"] = "0";
-  data["product_id"] = id;
-  data["date"] = Date.now();
-  if(data["recommend"] === true) {
-    data["recommend"] = "1";
-  } else {
-    data["recommend"] = "0";
-  }
-  console.log(data)
   db.save(id,data).then(
     res.sendStatus(201)
   ).catch(
