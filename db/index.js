@@ -7,7 +7,7 @@ const reviewsSchema = mongoose.Schema({
   reviews: Array
 })
 //model
-const Review = mongoose.model('Review', reviewsSchema)
+const Review = mongoose.model('Review', reviewsSchema, 'reviews')
 
 //query db by id
 const retreive = (id,count,page) => {
