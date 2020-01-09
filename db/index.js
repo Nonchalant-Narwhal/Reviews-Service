@@ -6,8 +6,13 @@ const reviewsSchema = mongoose.Schema({
   _id: String,
   reviews: Array
 })
+// const characteristicsSchema = mongoose.Schema({
+//   _id: String,
+//   characteristics: Array
+// })
 //model
 const Review = mongoose.model('Review', reviewsSchema, 'reviews')
+//const Characteristics = mongoose.model('Characteristics',characteristicsSchema,'characteristics')
 
 //query db by id
 const retreive = (id,count,page) => {
@@ -20,6 +25,7 @@ const retreive = (id,count,page) => {
               d["review_id"] = d["id"];
               delete d.id;
               delete d.characteristics;
+              delete d.reviewer_email;
             });
             const response ={
               product: id,
@@ -32,4 +38,9 @@ const retreive = (id,count,page) => {
           // .exec();
 }
 
+const save = (review) => {
+
+}
+
 module.exports.retreive = retreive;
+module.exports.save = save;
