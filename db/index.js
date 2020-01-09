@@ -5,8 +5,21 @@ mongoose.connect('mongodb://localhost/reviews_lite',{ useNewUrlParser: true })
 //schema        
 const reviewsSchema = mongoose.Schema({
   _id: String,
-  reviews: Array
+  body: String,
+  rating: String,
+  product_id: String,
+  characteristics: Object,
+  response: String,
+  summary: String,
+  reported: String,
+  helpfulness: String,
+  recommend: String,
+  date: { type: Date, default: Date.now },
+  email: String,
+  name: String
 })
+//create Index at schema level:
+reviewsSchema.index({product_id: -1})
 
 //model
 const Review = mongoose.model('Review', reviewsSchema, 'reviews')
@@ -14,15 +27,16 @@ const Review = mongoose.model('Review', reviewsSchema, 'reviews')
 //query db by id
 const retreive = (id,count,page) => {
   return Review
-          .findOne({"_id":id},{"_id":0})
+          .find({"product_id":id})
           .then((data) =>{
             //pagination
-            let newData = data.reviews.slice(page*count,(page+1)*count)
+            console.log(data)
+            let newData = data.slice(page*count,(page+1)*count)
             newData.forEach((d) =>{
-              d["review_id"] = d["id"];
-              delete d.id;
+              d["review_id"] = d["_id"];
+              delete d._id;
               delete d.characteristics;
-              delete d.reviewer_email;
+              delete d.email;
             });
             const response ={
               product: id,
