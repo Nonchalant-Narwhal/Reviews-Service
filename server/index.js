@@ -60,6 +60,81 @@ app.get(`/reviews/:product_id/list`,(req,res) => {
   )
 })
 
+//list meta:
+app.get('/reviews/:product_id/meta',(req,res) => {
+  const id = req.params.product_id;
+  let results = {
+    "product_id":id,
+    "ratings": {},
+    "recommend":{},
+    "characteristics":{}
+  };
+  let map = {};
+  db.retreiveChar(id).then(
+    (data) => {
+      console.log(data[0])
+      for(key in data[0].characteristics) {
+        console.log('name:',data[0].characteristics[key])
+        map[data[0].characteristics[key]] = key
+      }
+      return map;
+    }
+  ).then(
+    (d)=>{
+      console.log("map",d)
+    }
+    
+  )
+  console.log("map:",map)
+  db.retreiveMetaList(id).then(
+    (data) => {
+      console.log(data)
+      for(d of data) {
+        if(results.ratings[d.rating] !== undefined) {
+          results.ratings[d.rating] += 1;
+        } else {
+          results.ratings[d.rating] = 1;
+        }
+        if(results.recommend[d.recommend] !== undefined) {
+          results.recommend[d.recommend] += 1;
+        } else {
+          results.recommend[d.recommend] = 1;
+        }
+        for(c in d.characteristics) {
+          if(results.characteristics[c] !== undefined) {
+            results.characteristics[c].push(d.characteristics[c]);
+          } else {
+            results.characteristics[c] = [];
+            results.characteristics[c].push(d.characteristics[c]);
+          }
+        }                   
+      }
+      for(key in results.characteristics) {
+        const len = results.characteristics[key].length
+        let total = results.characteristics[key]
+                    .reduce((acc,n) => {
+                      return acc + parseInt(n);
+                    },0);
+        let average = total/len;
+        results.characteristics[key] = average.toFixed(4);
+      }
+      return results;
+    }
+    
+  ).then(
+    (data) => {
+      res.status(200).send(data)
+    }
+  ).catch(
+    (err) => {
+      (err) => {
+        console.log(err);
+        res.sendStatus(404);
+      }
+    }
+  )
+})
+
 // add a review:
 app.post('/reviews/:product_id',(req,res) => {
   let data = req.body;

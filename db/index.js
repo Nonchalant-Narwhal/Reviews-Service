@@ -15,13 +15,18 @@ const reviewsSchema = mongoose.Schema({
   characteristics: Object,
   response: String,
   summary: String,
-  reported: String,
+  reported: {type: String, defult: 0},
   helpfulness: Number,
   recommend: Number,
   date: { type: Date, default: Date.now },
   email: String,
   name: String,
   photos: Array
+})
+
+const charSchema = mongoose.Schema({
+  _id: String,
+  characteristics: Object
 })
 //create Index at schema level:
 reviewsSchema.index({product_id: -1})
@@ -34,6 +39,7 @@ reviewsSchema.index({product_id: -1})
 
 //model
 const Review = mongoose.model('Review', reviewsSchema, 'reviews')
+const Char = mongoose.model('Char',charSchema,'chars');
 
 //query db by id
 const retreive = (id,count,page) => {
@@ -47,6 +53,18 @@ const retreive = (id,count,page) => {
             return newData
           })
           // .exec();
+}
+
+const retreiveMetaList = (id) => {
+  return Review
+          .find({"product_id":id},{"_id":0,"rating":1,"recommend":1,"characteristics":1})
+          .exec()
+}
+
+const retreiveChar = (id) => {
+  return Char
+          .find({"_id":id},{"_id":0,"characteristics":1})
+          .exec()
 }
 
 const save = (prod_id,data) => {
@@ -85,3 +103,5 @@ module.exports.retreive = retreive;
 module.exports.save = save;
 module.exports.updateHelpfulness = updateHelpfulness;
 module.exports.updateReport = updateReport;
+module.exports.retreiveMetaList = retreiveMetaList;
+module.exports.retreiveChar = retreiveChar;
