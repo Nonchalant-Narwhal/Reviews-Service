@@ -63,7 +63,7 @@ const retreiveMetaList = (id) => {
 
 const retreiveChar = (id) => {
   return Char
-          .find({"_id":id},{"_id":0,"characteristics":1})
+          .findOne({"_id":id},{"_id":0,"characteristics":1})
           .exec()
 }
 

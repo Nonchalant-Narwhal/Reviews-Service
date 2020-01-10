@@ -73,9 +73,9 @@ app.get('/reviews/:product_id/meta',(req,res) => {
   const promise1 = db.retreiveChar(id).then(
     (data) => {
       //console.log(data[0])
-      for(key in data[0].characteristics) {
+      for(key in data.characteristics) {
         //console.log('name:',data[0].characteristics[key])
-        map[data[0].characteristics[key]] = key
+        map[data.characteristics[key]] = key
       }
       return map;
     }
