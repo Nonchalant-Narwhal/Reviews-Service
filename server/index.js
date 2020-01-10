@@ -70,25 +70,20 @@ app.get('/reviews/:product_id/meta',(req,res) => {
     "characteristics":{}
   };
   let map = {};
-  db.retreiveChar(id).then(
+  const promise1 = db.retreiveChar(id).then(
     (data) => {
-      console.log(data[0])
+      //console.log(data[0])
       for(key in data[0].characteristics) {
-        console.log('name:',data[0].characteristics[key])
+        //console.log('name:',data[0].characteristics[key])
         map[data[0].characteristics[key]] = key
       }
       return map;
     }
-  ).then(
-    (d)=>{
-      console.log("map",d)
-    }
-    
   )
-  console.log("map:",map)
-  db.retreiveMetaList(id).then(
+
+  const promise2 = db.retreiveMetaList(id).then(
     (data) => {
-      console.log(data)
+      //console.log(data)
       for(d of data) {
         if(results.ratings[d.rating] !== undefined) {
           results.ratings[d.rating] += 1;
@@ -121,9 +116,23 @@ app.get('/reviews/:product_id/meta',(req,res) => {
       return results;
     }
     
+  )
+  Promise.all([promise1,promise2]).then(
+    (values) => {
+      //console.log(values)
+      let char = values[0];
+      let results = values[1];
+      for (key in char) {
+        const id = char[key]
+        char[key] = {"id":id, "value":results.characteristics[id]}
+      }
+      results.characteristics = char;
+      return results;
+    }
   ).then(
-    (data) => {
-      res.status(200).send(data)
+    (results) =>{
+      //console.log(results)
+      res.status(200).send(results);
     }
   ).catch(
     (err) => {
@@ -134,6 +143,7 @@ app.get('/reviews/:product_id/meta',(req,res) => {
     }
   )
 })
+
 
 // add a review:
 app.post('/reviews/:product_id',(req,res) => {
