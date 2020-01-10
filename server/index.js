@@ -63,15 +63,42 @@ app.get(`/reviews/:product_id/list`,(req,res) => {
 // add a review:
 app.post('/reviews/:product_id',(req,res) => {
   let data = req.body;
+  
   const id = req.params.product_id;
   db.save(id,data).then(
-    res.sendStatus(201)
+    ()=>{
+      res.sendStatus(201)
+    }
+    
   ).catch(
     (err) => {
       console.log("error:",err)
+      res.sendStatus(418)
     }
   );
   
+})
+
+app.put('/reviews/helpful/:review_id',(req,res) => {
+  const id = req.params.review_id;
+  db.updateHelpfulness(id).then(
+    () => {
+      res.sendStatus(204);
+    }
+  ).catch((err) => {
+    res.sendStatus(418);
+  })
+})
+
+app.put('/reviews/report/:review_id',(req,res) => {
+  const id = req.params.review_id;
+  db.updateReport(id).then(
+    () => {
+      res.sendStatus(204);
+    }
+  ).catch((err) => {
+    res.sendStatus(418);
+  })
 })
 
 

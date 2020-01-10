@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
+const autoIncrement = require('mongoose-auto-increment');
 const moment = require('moment');
 mongoose.connect('mongodb://localhost/reviews_lite',{ useNewUrlParser: true })
-        .then(() => console.log('connected'))
+
+//const connection = mongoose.createConnection('mongodb://localhost/reviews_lite')
+
+//autoIncrement.initialize(connection);
 //schema        
 const reviewsSchema = mongoose.Schema({
-  _id: Number,
+  _id: String,
   body: String,
   rating: Number,
   product_id: String,
@@ -21,6 +25,12 @@ const reviewsSchema = mongoose.Schema({
 })
 //create Index at schema level:
 reviewsSchema.index({product_id: -1})
+//plugin auto increment for id:
+// reviewsSchema.plugin(autoIncrement.plugin,{
+//   model: 'Review',
+//   field: '_id',
+//   startAt: "5777923"
+// })
 
 //model
 const Review = mongoose.model('Review', reviewsSchema, 'reviews')
@@ -40,31 +50,38 @@ const retreive = (id,count,page) => {
 }
 
 const save = (prod_id,data) => {
-  data["reviewer_name"] = data["name"];
-  delete data["name"];
-  data["reviewer_email"] = data["email"];
-  delete data["email"];
-  data["reported"] = "0";
-  data["helpfulness"] = "0";
-  data["product_id"] = prod_id;
-  data["date"] = moment().format().slice(0,10);
-  if(data["recommend"] === true) {
-    data["recommend"] = "1";
-  } else {
-    data["recommend"] = "0";
+  let recommend = '0'
+  if(data.recommend === 'true'){
+    recommend = '1'
   }
-  console.log(data)
-  return Review
-          .findByIdAndUpdate(
-            prod_id,
-            {$push: {reviews: data}}
-          )
-          .catch(
-            (err) => {
-              console.log(err)
-            }
-          )
+  let newReview = new Review({
+    body: data.body,
+    rating: data.rating,
+    product_id: prod_id,
+    characteristics: data.characteristics,
+    response: "",
+    summary: data.summary,
+    reported: "0",
+    helpfulness: "0",
+    recommend: recommend,
+    email: data.email,
+    name: data.name,
+    photos: data.photos
+  });
+  newReview.save().catch((err)=>{
+    console.log(err)
+  }).exec()
+}
+
+const updateHelpfulness = (review_id) => {
+  return Review.update({"_id":review_id}, {$inc:{"helpfulness":1}})
+}
+
+const updateReport = (review_id) => {
+  return Review.update({"_id":review_id}, {$set:{"reported":1}})
 }
 
 module.exports.retreive = retreive;
 module.exports.save = save;
+module.exports.updateHelpfulness = updateHelpfulness;
+module.exports.updateReport = updateReport;
