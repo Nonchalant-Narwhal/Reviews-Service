@@ -27,7 +27,8 @@ app.get(`/reviews/:product_id/list`,(req,res) => {
         let response = ''
         if(d['response'] !== "null") {
           response = d['response'];
-        }        
+        }
+        console.log('_id:',d['_id'])        
         d = {
           review_id: d['_id'],
           rating: d['rating'],
@@ -123,7 +124,7 @@ app.get('/reviews/:product_id/meta',(req,res) => {
       let char = values[0];
       let results = values[1];
       for (key in char) {
-        const id = char[key]
+        const id = parseInt(char[key]);
         char[key] = {"id":id, "value":results.characteristics[id]}
       }
       results.characteristics = char;
@@ -158,7 +159,7 @@ app.post('/reviews/:product_id',(req,res) => {
   ).catch(
     (err) => {
       console.log("error:",err)
-      res.sendStatus(418)
+      res.sendStatus(500)
     }
   );
   
@@ -187,4 +188,5 @@ app.put('/reviews/report/:review_id',(req,res) => {
 })
 
 
-app.listen(port, () => console.log('Server running...'));
+//app.listen(port, () => console.log('Server running...'));
+app.listen(process.env.PORT || 3000);

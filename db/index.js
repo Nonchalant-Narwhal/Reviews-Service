@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
-const autoIncrement = require('mongoose-auto-increment');
-const moment = require('moment');
 mongoose.connect('mongodb://localhost/reviews_lite',{ useNewUrlParser: true })
-
+// mongoose.connect('mongodb://18.218.58.182:27017/sdc_reviews',{ useNewUrlParser: true }).then(
+//   ()=>{
+//     console.log('connected to database')
+//   }
+// ).catch((err)=> {
+//   console.log(err)
+// })
 //const connection = mongoose.createConnection('mongodb://localhost/reviews_lite')
 
-//autoIncrement.initialize(connection);
+
 //schema        
 const reviewsSchema = mongoose.Schema({
   _id: String,
@@ -28,18 +32,18 @@ const charSchema = mongoose.Schema({
   _id: String,
   characteristics: Object
 })
+
+const counterSchema = mongoose.Schema({
+  _id: String,
+  sequence_value: Number
+})
 //create Index at schema level:
 reviewsSchema.index({product_id: -1})
-//plugin auto increment for id:
-// reviewsSchema.plugin(autoIncrement.plugin,{
-//   model: 'Review',
-//   field: '_id',
-//   startAt: "5777923"
-// })
 
 //model
 const Review = mongoose.model('Review', reviewsSchema, 'reviews')
 const Char = mongoose.model('Char',charSchema,'chars');
+const Counter = mongoose.model('Counter',counterSchema,'counter')
 
 //query db by id
 const retreive = (id,count,page) => {
@@ -47,6 +51,7 @@ const retreive = (id,count,page) => {
           .find({"product_id":id})
           .then((data) =>{
             //filter and pagination
+            console.log('data:',data)
             let newData = data
                           .filter(d => d.reported === '0')
                           .slice(page*count,(page+1)*count)
@@ -73,6 +78,7 @@ const save = (prod_id,data) => {
     recommend = '1'
   }
   let newReview = new Review({
+    //_id: getValueForNextSequence("item_id"),
     body: data.body,
     rating: data.rating,
     product_id: prod_id,
@@ -86,9 +92,10 @@ const save = (prod_id,data) => {
     name: data.name,
     photos: data.photos
   });
-  newReview.save().catch((err)=>{
+  console.log(newReview)
+  return newReview.save().catch((err)=>{
     console.log(err)
-  }).exec()
+  })
 }
 
 const updateHelpfulness = (review_id) => {
