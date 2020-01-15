@@ -20,7 +20,7 @@ const reviewsSchema = mongoose.Schema({
   response: String,
   summary: String,
   reported: {type: String, defult: 0},
-  helpfulness: Number,
+  helpfulness: String,
   recommend: Number,
   date: { type: Date, default: Date.now },
   email: String,
@@ -33,17 +33,12 @@ const charSchema = mongoose.Schema({
   characteristics: Object
 })
 
-const counterSchema = mongoose.Schema({
-  _id: String,
-  sequence_value: Number
-})
 //create Index at schema level:
 reviewsSchema.index({product_id: -1})
 
 //model
 const Review = mongoose.model('Review', reviewsSchema, 'reviews')
 const Char = mongoose.model('Char',charSchema,'chars');
-const Counter = mongoose.model('Counter',counterSchema,'counter')
 
 //query db by id
 const retreive = (id,count,page) => {
@@ -51,7 +46,7 @@ const retreive = (id,count,page) => {
           .find({"product_id":id})
           .then((data) =>{
             //filter and pagination
-            console.log('data:',data)
+            //console.log('data:',data)
             let newData = data
                           .filter(d => d.reported === '0')
                           .slice(page*count,(page+1)*count)
@@ -78,7 +73,6 @@ const save = (prod_id,data) => {
     recommend = '1'
   }
   let newReview = new Review({
-    //_id: getValueForNextSequence("item_id"),
     body: data.body,
     rating: data.rating,
     product_id: prod_id,
@@ -92,18 +86,26 @@ const save = (prod_id,data) => {
     name: data.name,
     photos: data.photos
   });
-  console.log(newReview)
+  //console.log(newReview)
   return newReview.save().catch((err)=>{
     console.log(err)
   })
 }
 
 const updateHelpfulness = (review_id) => {
-  return Review.update({"_id":review_id}, {$inc:{"helpfulness":1}})
+  return Review
+        .findByIdAndUpdate(review_id, {$inc:{"helpfulness":1}})
+        .catch((err) => {
+          console.log(err)
+        })
 }
 
 const updateReport = (review_id) => {
-  return Review.update({"_id":review_id}, {$set:{"reported":1}})
+  return Review
+        .update({"_id":review_id}, {$set:{"reported":1}})
+        .catch((err)=> {
+          console.log(err)
+        })
 }
 
 module.exports.retreive = retreive;
