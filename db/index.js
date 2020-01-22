@@ -55,7 +55,6 @@ const retreive = (id,count,page) => {
           // .exec();
 }
 
-
 const retreiveMetaList = (id) => {
   return Review
           .find({"product_id":id},{"_id":0,"rating":1,"recommend":1,"characteristics":1})
@@ -115,4 +114,3 @@ module.exports.updateHelpfulness = updateHelpfulness;
 module.exports.updateReport = updateReport;
 module.exports.retreiveMetaList = retreiveMetaList;
 module.exports.retreiveChar = retreiveChar;
-

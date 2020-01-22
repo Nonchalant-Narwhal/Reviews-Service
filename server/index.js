@@ -125,6 +125,7 @@ app.get('/reviews/:product_id/meta',(req,res) => {
     }
   ).then(
     (results) =>{
+      res.status(200).send(results);
     }
   ).catch(
     (err) => {
@@ -136,11 +137,6 @@ app.get('/reviews/:product_id/meta',(req,res) => {
   )
 })
 
-// add a review:
-app.post('/reviews/:product_id',(req,res) => {
-  db.save(req.body);
-  res.sendStatus(201)
-})
 
 // add a review:
 app.post('/reviews/:product_id',(req,res) => {
