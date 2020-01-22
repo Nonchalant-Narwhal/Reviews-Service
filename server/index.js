@@ -14,9 +14,6 @@ app.get(`/reviews/:product_id/list`,(req,res) => {
   const page = req.query.page||0;
   db.retreive(id,count,page).then(
     (data) => {
-<<<<<<< HEAD
-      //console.log(data)
-=======
       let r = data.map((d) => {
         //format data
         let photos = []
@@ -43,16 +40,10 @@ app.get(`/reviews/:product_id/list`,(req,res) => {
         }
         return d
       })
->>>>>>> lastest
       const response ={
         product: id,
         page: page,
         count: count,
-<<<<<<< HEAD
-        results: data
-      }
-      res.status(200).send(response);
-=======
         results: r
       }
       res.status(200).send(response);
@@ -134,8 +125,6 @@ app.get('/reviews/:product_id/meta',(req,res) => {
     }
   ).then(
     (results) =>{
-      res.status(200).send(results);
->>>>>>> lastest
     }
   ).catch(
     (err) => {
